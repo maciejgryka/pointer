@@ -3,7 +3,6 @@ defmodule PointerWeb.DetectLive do
 
   alias Membrane.WebRTC.Live.{Capture, Player}
 
-  # Import Routes to use in callbacks
   import Phoenix.Component
 
   def mount(_params, _session, socket) do
@@ -32,25 +31,15 @@ defmodule PointerWeb.DetectLive do
         socket
       end
 
-    socket =
-      socket
-      |> assign(:box, [10, 10, 100, 100])
-
     Process.send_after(self(), :step, 1000)
-
-    {:ok, socket}
+    {:ok, assign(socket, :box, [10, 10, 100, 100])}
   end
 
   def handle_info(:step, socket) do
     [x, y, w, h] = socket.assigns.box
-
     new_x = rem(x + 10, 200)
-    new_box = [new_x, y, w, h]
-
-    socket = update_box(socket, new_box)
-
-    Process.send_after(self(), :step, 1000)
-
+    socket = update_box(socket, [new_x, y, w, h])
+    Process.send_after(self(), :step, 500)
     {:noreply, socket}
   end
 
@@ -73,7 +62,7 @@ defmodule PointerWeb.DetectLive do
         id="trackingOverlay"
         phx-hook="TrackingOverlay"
         data-box={Jason.encode!(@box)}
-        class="absolute top-0 left-0 w-full h-full z-10 pointer-events-none border-red-500"
+        class="absolute top-0 left-0 w-[640px] h-[480px] z-10 pointer-events-none border-red-500"
       >
       </canvas>
     </div>
