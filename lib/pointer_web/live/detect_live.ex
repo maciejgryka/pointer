@@ -34,15 +34,29 @@ defmodule PointerWeb.DetectLive do
 
     socket =
       socket
-      |> assign(:box, [50, 50, 100, 100])
+      |> assign(:box, [10, 10, 100, 100])
+
+    Process.send_after(self(), :step, 1000)
 
     {:ok, socket}
+  end
+
+  def handle_info(:step, socket) do
+    [x, y, w, h] = socket.assigns.box
+
+    new_x = rem(x + 10, 200)
+    new_box = [new_x, y, w, h]
+
+    socket = update_box(socket, new_box)
+
+    Process.send_after(self(), :step, 1000)
+
+    {:noreply, socket}
   end
 
   # Function to update the tracking box and push to the client
   def update_box(socket, box) do
     socket = assign(socket, :box, box)
-    # Push the updated box to the client
     socket = push_event(socket, "update_box", %{box: box})
     socket
   end
@@ -54,12 +68,12 @@ defmodule PointerWeb.DetectLive do
     </div>
 
     <div class="relative inline-block">
-      <Player.live_render socket={@socket} player_id="videoPlayer" />
+      <Player.live_render socket={@socket} player_id="videoPlayer" class="w-[640px] h-[480px]" />
       <canvas
         id="trackingOverlay"
         phx-hook="TrackingOverlay"
         data-box={Jason.encode!(@box)}
-        class="absolute top-0 left-0 w-full h-full z-10 pointer-events-none"
+        class="absolute top-0 left-0 w-full h-full z-10 pointer-events-none border-red-500"
       >
       </canvas>
     </div>

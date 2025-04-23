@@ -31,8 +31,6 @@ let Hooks = {};
 const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 Hooks.Capture = createCaptureHook(iceServers);
 Hooks.Player = createPlayerHook(iceServers);
-
-// Register the TrackingOverlay hook
 Hooks.TrackingOverlay = TrackingOverlayHook;
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

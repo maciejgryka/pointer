@@ -1,5 +1,8 @@
 import Config
 
+# Set the logger level to warning to silence logs below that level
+config :logger, level: :warning
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
