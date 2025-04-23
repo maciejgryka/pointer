@@ -18,6 +18,7 @@ defmodule PointerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/detect", DetectLive
   end
 
   # Other scopes may use custom stacks.

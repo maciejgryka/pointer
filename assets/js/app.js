@@ -24,10 +24,22 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+import { createCaptureHook, createPlayerHook } from "membrane_webrtc_plugin";
+import TrackingOverlayHook from "./trackingOverlay";
+
+let Hooks = {};
+const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+Hooks.Capture = createCaptureHook(iceServers);
+Hooks.Player = createPlayerHook(iceServers);
+
+// Register the TrackingOverlay hook
+Hooks.TrackingOverlay = TrackingOverlayHook;
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks,
 })
 
 // Show progress bar on live navigation and form submits

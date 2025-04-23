@@ -56,7 +56,9 @@ defmodule Pointer.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-
+      {:membrane_webrtc_plugin, "~> 0.25"},
+      {:membrane_transcoder_plugin, "~> 0.2"},
+      {:membrane_ffmpeg_swscale_plugin, "~> 0.16"},
     ]
   end
 
