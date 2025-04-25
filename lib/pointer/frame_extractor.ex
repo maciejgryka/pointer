@@ -34,10 +34,7 @@ defmodule Pointer.FrameExtractor do
     %{width: width, height: height} = ctx.pads.input.stream_format
 
     # Process the RGB frame data - using just base64 for simplicity
-    # in a production environment, we'd use JPEG compression here
     try do
-      # Convert frame to base64 and send to detector
-      # Include dimensions which are needed for proper reconstruction in Python
       frame_info = %{
         width: width,
         height: height,

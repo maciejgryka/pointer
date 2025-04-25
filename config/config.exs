@@ -68,7 +68,6 @@ config :pythonx, :uv_init,
   dependencies = [
     "opencv-python>=4.11.0.86",
     "ultralytics>=8.3.82",
-    "pyav>=14.2.1",
   ]
   """
 
