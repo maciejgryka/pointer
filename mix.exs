@@ -59,6 +59,7 @@ defmodule Pointer.MixProject do
       {:membrane_webrtc_plugin, "~> 0.25"},
       {:membrane_transcoder_plugin, "~> 0.2"},
       {:membrane_ffmpeg_swscale_plugin, "~> 0.16"},
+      {:pythonx, "~> 0.4.4"}
     ]
   end
 

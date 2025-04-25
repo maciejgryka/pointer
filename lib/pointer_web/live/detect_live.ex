@@ -32,22 +32,18 @@ defmodule PointerWeb.DetectLive do
       end
 
     Process.send_after(self(), :step, 1000)
-    {:ok, assign(socket, :box, [10, 10, 100, 100])}
+    {:ok, assign(socket, :box, Pointer.Detector.detect(%{}))}
   end
 
   def handle_info(:step, socket) do
-    [x, y, w, h] = socket.assigns.box
-    new_x = rem(x + 10, 200)
-    socket = update_box(socket, [new_x, y, w, h])
+    socket = update_box(socket, Pointer.Detector.detect(%{}))
     Process.send_after(self(), :step, 500)
     {:noreply, socket}
   end
 
   # Function to update the tracking box and push to the client
   def update_box(socket, box) do
-    socket = assign(socket, :box, box)
-    socket = push_event(socket, "update_box", %{box: box})
-    socket
+    socket |> assign(:box, box) |> push_event("update_box", %{box: box})
   end
 
   def render(assigns) do

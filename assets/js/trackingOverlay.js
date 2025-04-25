@@ -1,11 +1,14 @@
 // Tracking overlay hook for drawing a rectangle on top of video
+const WIDTH = 640;
+const HEIGHT = 480;
+
 const TrackingOverlayHook = {
   mounted() {
     this.canvas = this.el;
     this.ctx = this.canvas.getContext('2d');
     this.box = this.el.dataset.box ? JSON.parse(this.el.dataset.box) : null;
-    this.canvas.width = 640;
-    this.canvas.height = 480;
+    this.canvas.width = WIDTH;
+    this.canvas.height = HEIGHT;
     this.draw();
     this.animationFrame = requestAnimationFrame(this.animationLoop.bind(this));
   },
@@ -22,23 +25,27 @@ const TrackingOverlayHook = {
     } else {
       this.box = null;
     }
-    this.canvas.width = 640;
-    this.canvas.height = 480;
+    this.canvas.width = WIDTH;
+    this.canvas.height = HEIGHT;
   },
   
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
     if (this.box && this.box.length === 4) {
-      const [x, y, w, h] = this.box;
+      const [x0, y0, x1, y1] = this.box;
+      // x0 = Math.max(0, Math.min(x0, WIDTH));
+      // y0 = Math.max(0, Math.min(y0, HEIGHT));
+      // x1 = Math.max(0, Math.min(x1, WIDTH));
+      // y1 = Math.max(0, Math.min(y1, HEIGHT));
       
-      const safeW = Math.min(w, this.canvas.width - x);
-      const safeH = Math.min(h, this.canvas.height - y);
+      const w = x1 - x0;
+      const h = y1 - y0;
       
       this.ctx.strokeStyle = 'red';
       this.ctx.lineWidth = 1;
       this.ctx.beginPath();
-      this.ctx.rect(x, y, safeW, safeH);
+      this.ctx.rect(x0, y0, w, h);
       this.ctx.stroke();
     }
   },

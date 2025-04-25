@@ -59,6 +59,18 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :pythonx, :uv_init,
+  pyproject_toml: """
+  [project]
+  name = "project"
+  version = "0.0.0"
+  requires-python = "==3.13.*"
+  dependencies = [
+    "opencv-python>=4.11.0.86",
+    "ultralytics>=8.3.82",
+  ]
+  """
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
