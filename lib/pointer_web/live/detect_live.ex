@@ -13,7 +13,8 @@ defmodule PointerWeb.DetectLive do
 
         Membrane.Pipeline.start_link(Pointer.Pipeline,
           ingress_signaling: ingress_signaling,
-          egress_signaling: egress_signaling
+          egress_signaling: egress_signaling,
+          detector_pid: self()
         )
 
         socket
@@ -31,13 +32,59 @@ defmodule PointerWeb.DetectLive do
         socket
       end
 
-    Process.send_after(self(), :step, 1000)
-    {:ok, assign(socket, :box, Pointer.Detector.detect(%{}))}
+    {:ok,
+     socket |> assign(:box, Pointer.Detector.detect(%{})) |> assign(:processing_frame?, false)}
   end
 
-  def handle_info(:step, socket) do
-    socket = update_box(socket, Pointer.Detector.detect(%{}))
-    Process.send_after(self(), :step, 500)
+  def handle_info({:frame, frame_data, format}, socket) do
+    if socket.assigns.processing_frame? do
+      # Drop frame if we're already processing one
+      {:noreply, socket}
+    else
+      # Mark that we're processing a frame and handle it
+      socket = assign(socket, :processing_frame?, true)
+      send(self(), {:detect_this_frame, frame_data, format})
+      {:noreply, socket}
+    end
+  end
+
+  # Backward compatibility for frames without format info
+  def handle_info({:frame, frame_data}, socket) do
+    if socket.assigns.processing_frame? do
+      # Drop frame if we're already processing one
+      {:noreply, socket}
+    else
+      # Mark that we're processing a frame and handle it
+      socket = assign(socket, :processing_frame?, true)
+      send(self(), {:detect_this_frame, frame_data, :unknown})
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({:detect_this_frame, frame_data, format}, socket) do
+    # Run detection on the frame with format information
+    box = Pointer.Detector.detect(frame_data, format)
+
+    # Update UI with the detection results
+    socket = update_box(socket, box)
+
+    # Reset processing flag to accept new frames
+    socket = assign(socket, :processing_frame?, false)
+
+    {:noreply, socket}
+  end
+
+  # Backward compatibility for detection without format info
+  def handle_info({:detect_this_frame, frame_data}, socket) do
+    # Run detection on the frame without format info
+    box = Pointer.Detector.detect(frame_data)
+
+    # Update UI with the detection results
+    socket = update_box(socket, box)
+
+    # Reset processing flag to accept new frames
+    socket = assign(socket, :processing_frame?, false)
+
     {:noreply, socket}
   end
 
