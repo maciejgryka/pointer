@@ -11,8 +11,7 @@ defmodule Pointer.Application do
       PointerWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:pointer, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pointer.PubSub},
-      # Start a worker by calling: Pointer.Worker.start_link(arg)
-      # {Pointer.Worker, arg},
+      {Pointer.DetectorServer, []},
       # Start to serve requests, typically the last entry
       PointerWeb.Endpoint
     ]
