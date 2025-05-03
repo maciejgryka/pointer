@@ -1,34 +1,9 @@
 defmodule Pointer.Detector do
-  # DETECT/1 FUNCTIONS
-
-  # Main detect/1 function for backward compatibility without format
-  def detect(base64_frame) when is_binary(base64_frame) and byte_size(base64_frame) > 0 do
-    # Use default dimensions when no frame info is provided
-    frame_info = %{
-      width: 640,
-      height: 480,
-      format: :RGB,
-      size: byte_size(Base.decode64!(base64_frame))
-    }
-
-    detect(base64_frame, frame_info)
-  end
-
-  # Fallback for bare calls with no parameters
-  def detect(_) do
-    # Return an empty box
-    [0, 0, 0, 0]
-  end
-
-  # DETECT/2 FUNCTIONS
-
-  # Main detection function that accepts raw RGB frame information
   def detect(base64_frame, frame_info)
       when is_binary(base64_frame) and byte_size(base64_frame) > 0 and is_map(frame_info) do
     width = Map.get(frame_info, :width, 640)
     height = Map.get(frame_info, :height, 480)
 
-    # Forward the base64 encoded frame and dimensions to Python for processing
     {result, _globals} =
       Pythonx.eval(
         """
@@ -107,9 +82,7 @@ defmodule Pointer.Detector do
     {coords, width, height}
   end
 
-  # Fallback for empty or non-binary frames
   def detect(_frame, _format) do
-    # Return an empty box
     {[0, 0, 0, 0], 640, 480}
   end
 end

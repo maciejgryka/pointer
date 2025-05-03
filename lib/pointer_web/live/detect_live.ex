@@ -24,17 +24,14 @@ defmodule PointerWeb.DetectLive do
           video?: true,
           audio?: false
         )
-        |> Player.attach(
-          id: "videoPlayer",
-          signaling: egress_signaling
-        )
+        |> Player.attach(id: "videoPlayer", signaling: egress_signaling)
       else
         socket
       end
 
     socket =
       socket
-      |> assign(:box, Pointer.Detector.detect(%{}))
+      |> assign(:box, nil)
       |> assign(:width, 640)
       |> assign(:height, 480)
       |> assign(:processing_frame?, false)
@@ -44,26 +41,10 @@ defmodule PointerWeb.DetectLive do
 
   def handle_info({:frame, frame_data, format}, socket) do
     if socket.assigns.processing_frame? do
-      # Drop frame if we're already processing one
       {:noreply, socket}
     else
-      # Mark that we're processing a frame and handle it
-      socket = assign(socket, :processing_frame?, true)
       send(self(), {:detect_this_frame, frame_data, format})
-      {:noreply, socket}
-    end
-  end
-
-  # Backward compatibility for frames without format info
-  def handle_info({:frame, frame_data}, socket) do
-    if socket.assigns.processing_frame? do
-      # Drop frame if we're already processing one
-      {:noreply, socket}
-    else
-      # Mark that we're processing a frame and handle it
-      socket = assign(socket, :processing_frame?, true)
-      send(self(), {:detect_this_frame, frame_data, :unknown})
-      {:noreply, socket}
+      {:noreply, assign(socket, :processing_frame?, true)}
     end
   end
 
@@ -73,19 +54,11 @@ defmodule PointerWeb.DetectLive do
     {:noreply, socket}
   end
 
-  def handle_info({:detect_this_frame, frame_data}, socket) do
-    {box, width, height} = Pointer.Detector.detect(frame_data)
-    socket = socket |> update_box(box, width, height) |> assign(:processing_frame?, false)
-    {:noreply, socket}
-  end
-
-  # Function to update the tracking box and push to the client
   def update_box(socket, box, width, height) do
     socket
     |> assign(:box, box)
     |> assign(:width, width)
     |> assign(:height, height)
-    |> push_event("update_box", %{box: box, width: width, height: height})
   end
 
   def render(assigns) do

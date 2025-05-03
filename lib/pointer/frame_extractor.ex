@@ -27,30 +27,19 @@ defmodule Pointer.FrameExtractor do
 
   @impl true
   def handle_buffer(:input, buffer, ctx, %{detector_pid: detector_pid} = state) do
-    # Extract raw RGB frame data
     frame_data = buffer.payload
-
-    # Get dimensions from stream format
     %{width: width, height: height} = ctx.pads.input.stream_format
 
-    # Process the RGB frame data - using just base64 for simplicity
-    try do
-      frame_info = %{
-        width: width,
-        height: height,
-        format: :RGB,
-        size: byte_size(frame_data)
-      }
+    frame_info = %{
+      width: width,
+      height: height,
+      format: :RGB,
+      size: byte_size(frame_data)
+    }
 
-      # Send the raw RGB frame data encoded as base64
-      base64_frame = Base.encode64(frame_data)
-      send(detector_pid, {:frame, base64_frame, frame_info})
-    rescue
-      e ->
-        IO.puts("Error processing frame: #{inspect(e)}")
-    end
+    base64_frame = Base.encode64(frame_data)
+    send(detector_pid, {:frame, base64_frame, frame_info})
 
-    # Forward the buffer to the output pad unchanged
     {[buffer: {:output, buffer}], state}
   end
 
