@@ -46,8 +46,8 @@ const TrackingOverlayHook = {
       const w = x1 - x0;
       const h = y1 - y0;
       
-      this.ctx.strokeStyle = 'green';
-      this.ctx.lineWidth = 1;
+      this.ctx.strokeStyle = '#39FF14';
+      this.ctx.lineWidth = 2;
       this.ctx.beginPath();
       this.ctx.rect(x0, y0, w, h);
       this.ctx.stroke();
