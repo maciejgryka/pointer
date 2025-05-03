@@ -1,14 +1,16 @@
 // Tracking overlay hook for drawing a rectangle on top of video
-const WIDTH = 640;
-const HEIGHT = 480;
+// const WIDTH = 640;
+// const HEIGHT = 480;
 
 const TrackingOverlayHook = {
   mounted() {
     this.canvas = this.el;
     this.ctx = this.canvas.getContext('2d');
     this.box = this.el.dataset.box ? JSON.parse(this.el.dataset.box) : null;
-    this.canvas.width = WIDTH;
-    this.canvas.height = HEIGHT;
+    this.width = this.el.dataset.width;
+    this.height = this.el.dataset.height;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
     this.draw();
     this.animationFrame = requestAnimationFrame(this.animationLoop.bind(this));
   },
@@ -18,6 +20,8 @@ const TrackingOverlayHook = {
     if (newBoxData) {
       try {
         this.box = JSON.parse(newBoxData);
+        this.width = this.el.dataset.width;
+        this.height = this.el.dataset.height;
       } catch (e) {
         console.error('Error parsing updated box data:', e, newBoxData);
         this.box = null;
@@ -25,8 +29,8 @@ const TrackingOverlayHook = {
     } else {
       this.box = null;
     }
-    this.canvas.width = WIDTH;
-    this.canvas.height = HEIGHT;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
   },
   
   draw() {

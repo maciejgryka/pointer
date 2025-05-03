@@ -32,8 +32,14 @@ defmodule PointerWeb.DetectLive do
         socket
       end
 
-    {:ok,
-     socket |> assign(:box, Pointer.Detector.detect(%{})) |> assign(:processing_frame?, false)}
+    socket =
+      socket
+      |> assign(:box, Pointer.Detector.detect(%{}))
+      |> assign(:width, 640)
+      |> assign(:height, 480)
+      |> assign(:processing_frame?, false)
+
+    {:ok, socket}
   end
 
   def handle_info({:frame, frame_data, format}, socket) do
@@ -62,35 +68,24 @@ defmodule PointerWeb.DetectLive do
   end
 
   def handle_info({:detect_this_frame, frame_data, format}, socket) do
-    # Run detection on the frame with format information
-    box = Pointer.Detector.detect(frame_data, format)
-
-    # Update UI with the detection results
-    socket = update_box(socket, box)
-
-    # Reset processing flag to accept new frames
-    socket = assign(socket, :processing_frame?, false)
-
+    {box, width, height} = Pointer.Detector.detect(frame_data, format)
+    socket = socket |> update_box(box, width, height) |> assign(:processing_frame?, false)
     {:noreply, socket}
   end
 
-  # Backward compatibility for detection without format info
   def handle_info({:detect_this_frame, frame_data}, socket) do
-    # Run detection on the frame without format info
-    box = Pointer.Detector.detect(frame_data)
-
-    # Update UI with the detection results
-    socket = update_box(socket, box)
-
-    # Reset processing flag to accept new frames
-    socket = assign(socket, :processing_frame?, false)
-
+    {box, width, height} = Pointer.Detector.detect(frame_data)
+    socket = socket |> update_box(box, width, height) |> assign(:processing_frame?, false)
     {:noreply, socket}
   end
 
   # Function to update the tracking box and push to the client
-  def update_box(socket, box) do
-    socket |> assign(:box, box) |> push_event("update_box", %{box: box})
+  def update_box(socket, box, width, height) do
+    socket
+    |> assign(:box, box)
+    |> assign(:width, width)
+    |> assign(:height, height)
+    |> push_event("update_box", %{box: box, width: width, height: height})
   end
 
   def render(assigns) do
@@ -105,6 +100,8 @@ defmodule PointerWeb.DetectLive do
         id="trackingOverlay"
         phx-hook="TrackingOverlay"
         data-box={Jason.encode!(@box)}
+        data-width={@width}
+        data-height={@height}
         class="absolute top-0 left-0 w-[640px] h-[480px] z-10 pointer-events-none border-red-500"
       >
       </canvas>
