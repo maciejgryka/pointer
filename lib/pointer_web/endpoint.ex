@@ -54,4 +54,5 @@ defmodule PointerWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug PointerWeb.Router
+  plug Plug.SSL, rewrite_on: [:x_forwarded_proto]
 end
