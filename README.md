@@ -38,7 +38,8 @@ We can run it on the `lewton` server, but releases are not set up yet, only the 
 ```bash
 ssh lewton
 cd /home/mgryka/dev/pointer
-mise exec elixir@1.18.3 -- mix phx.server
+MIX_ENV=prod mise exec elixir@1.18.3 -- mix release
+sudo systemctl restart pointer.service
 ```
 
 Then visit `https://detect.gryka.net`. You can also run `TERM=xterm htop` in a differnt terminal to monitor usage.
