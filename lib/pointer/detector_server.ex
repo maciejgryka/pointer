@@ -17,7 +17,7 @@ defmodule Pointer.DetectorServer do
         import cv2
 
         # Load the model once at initialization
-        model = YOLO("data/2025-05-03-best-blur.pt")
+        model = YOLO("data/2025-04-16-best.pt")
         print("YOLO model loaded successfully")
 
         def decode_raw_rgb_frame(base64_frame, width, height):
